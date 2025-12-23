@@ -27,6 +27,14 @@ LifeGuard AI is a cutting-edge, real-time safety intelligence system that uses a
 
 ## ✨ **Key Features**
 
+### 🧠 **Advanced GenAI Intelligence**
+- 🤖 **Conversational AI Assistant** - Natural language interaction with intelligent safety guidance
+- 🔮 **Predictive Risk Modeling** - Neural networks predict future scenarios up to 4 hours ahead
+- 👁️ **Computer Vision Analysis** - Real-time visual hazard detection and crowd analysis
+- 🗣️ **Adaptive Voice Interface** - Stress-aware speech recognition and synthesis
+- 📊 **Behavioral Learning** - AI learns from user patterns and improves recommendations
+- 🎭 **Scenario Generation** - Multiple future scenario analysis with confidence intervals
+
 ### 🔄 **Real-Time Intelligence**
 - ⚡ **1-Second Updates** - Lightning-fast risk assessment refresh
 - 🌍 **Live GPS Tracking** - High-accuracy positioning with movement detection
@@ -84,7 +92,11 @@ LifeGuard AI is a cutting-edge, real-time safety intelligence system that uses a
 
 3. **🌐 Open in Browser**
    ```
+   # Main Application with Full GenAI Features
    http://localhost:8000/enhanced-index.html
+   
+   # GenAI Features Demo & Showcase
+   http://localhost:8000/genai-demo.html
    ```
 
 4. **⚙️ Configure API Keys** (Optional)
@@ -236,6 +248,11 @@ lifeguard-risk-monitor/
 ├── 🎨 enhanced-styles.css          # Cyber-themed styling
 ├── 🧠 enhanced-app.js              # Core application logic
 ├── ⚖️ simpleRiskAssessment.js      # Basic risk calculation
+├── 🤖 genAI-engine.js              # Advanced GenAI intelligence engine
+├── 💬 ai-chat-interface.js         # Conversational AI assistant
+├── 🔮 predictive-ai-model.js       # Neural network predictions
+├── 👁️ ai-vision-system.js          # Computer vision analysis
+├── 🎪 genai-demo.html              # GenAI features demonstration
 ├── 🤖 adaptiveRiskEngine.js        # AI learning system
 ├── 📊 riskBreakdownAnalyzer.js     # Factor analysis engine
 ├── 🚨 anomalyDetector.js           # Pattern deviation detection
