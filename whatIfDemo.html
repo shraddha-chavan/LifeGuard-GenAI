@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What-If Risk Simulator Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        select, input[type="range"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        input[type="range"] {
+            padding: 0;
+        }
+        
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .risk-display {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .risk-score {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .risk-level {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+        .risk-critical { background: #f5c6cb; color: #491217; }
+        
+        .comparison {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .change-positive { color: #28a745; }
+        .change-negative { color: #dc3545; }
+        .change-neutral { color: #6c757d; }
+        
+        .insights {
+            margin-top: 20px;
+        }
+        
+        .insight-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .templates {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .template-btn {
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .template-btn:hover {
+            background: #0056b3;
+        }
+        
+        .breakdown {
+            margin-top: 15px;
+        }
+        
+        .factor-bar {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+        
+        .factor-name {
+            width: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .factor-progress {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+        
+        .factor-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            transition: width 0.3s ease;
+        }
+        
+        .factor-value {
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>What-If Risk Simulator</h1>
+    <p>Modify environmental parameters and see how risk levels change in real-time.</p>
+    
+    <div class="templates">
+        <button class="template-btn" onclick="loadTemplate('baseline')">Reset to Baseline</button>
+        <button class="template-btn" onclick="loadTemplate('severe_weather')">Severe Weather</button>
+        <button class="template-btn" onclick="loadTemplate('crowded_event')">Crowded Event</button>
+        <button class="template-btn" onclick="loadTemplate('night_emergency')">Night Emergency</button>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Environmental Parameters</h2>
+            
+            <div class="control-group">
+                <label for="weather">Weather Conditions:</label>
+                <select id="weather" onchange="updateSimulation()">
+                    <option value="clear">Clear</option>
+                    <option value="cloudy">Cloudy</option>
+                    <option value="rainy">Rainy</option>
+                    <option value="stormy">Stormy</option>
+                    <option value="foggy">Foggy</option>
+                    <option value="snow">Snow</option>
+                    <option value="thunderstorm">Thunderstorm</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="visibility">Visibility:</label>
+                <input type="range" id="visibility" min="0" max="1" step="0.1" value="0.8" oninput="updateVisibilityValue(); updateSimulation()">
+                <span class="range-value" id="visibilityValue">0.8</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="crowdDensity">Crowd Density:</label>
+                <select id="crowdDensity" onchange="updateSimulation()">
+                    <option value="isolated">Isolated</option>
+                    <option value="light">Light</option>
+                    <option value="moderate" selected>Moderate</option>
+                    <option value="heavy">Heavy</option>
+                    <option value="overcrowded">Overcrowded</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="timeOfDay">Time of Day:</label>
+                <select id="timeOfDay" onchange="updateSimulation()">
+                    <option value="dawn">Dawn</option>
+                    <option value="morning">Morning</option>
+                    <option value="afternoon" selected>Afternoon</option>
+                    <option value="evening">Evening</option>
+                    <option value="night">Night</option>
+                    <option value="late_night">Late Night</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="locationType">Location Type:</label>
+                <select id="locationType" onchange="updateSimulation()">
+                    <option value="urban" selected>Urban</option>
+                    <option value="suburban">Suburban</option>
+                    <option value="rural">Rural</option>
+                    <option value="wilderness">Wilderness</option>
+                    <option value="industrial">Industrial</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="temperature">Temperature (°C):</label>
+                <input type="range" id="temperature" min="-20" max="50" step="1" value="20" oninput="updateTemperatureValue(); updateSimulation()">
+                <span class="range-value" id="temperatureValue">20°C</span>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Risk Assessment</h2>
+            
+            <div class="risk-display risk-low" id="riskDisplay">
+                <div class="risk-score" id="riskScore">2.1</div>
+                <div class="risk-level" id="riskLevel">LOW</div>
+            </div>
+            
+            <div class="comparison" id="comparison">
+                <strong>Change from Baseline:</strong>
+                <div id="comparisonDetails">No changes applied</div>
+            </div>
+            
+            <div class="breakdown" id="breakdown">
+                <h3>Risk Factor Breakdown</h3>
+                <div id="factorBars"></div>
+            </div>
+            
+            <div class="insights" id="insights">
+                <h3>Key Insights</h3>
+                <div id="insightsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="whatIfSimulator.js"></script>
+    <script src="simpleRiskAssessment.js"></script>
+    <script>
+        // Initialize simulator
+        const simulator = new WhatIfSimulator({
+            enableRealTimeUpdates: true,
+            cacheResults: true,
+            enableLogging: true
+        });
+        
+        // Set up with simple risk engine
+        simulator.setEngines({
+            riskEngine: { assessRisk: assessRisk }
+        });
+        
+        // Set baseline
+        const baselineScenario = {
+            weather: 'clear',
+            visibility: 0.8,
+            crowd_density: 'moderate',
+            time_of_day: 'afternoon',
+            location_type: 'urban',
+            temperature: 20
+        };
+        
+        simulator.setBaseline(baselineScenario);
+        
+        // Update display functions
+        function updateVisibilityValue() {
+            const value = document.getElementById('visibility').value;
+            document.getElementById('visibilityValue').textContent = value;
+        }
+        
+        function updateTemperatureValue() {
+            const value = document.getElementById('temperature').value;
+            document.getElementById('temperatureValue').textContent = value + '°C';
+        }
+        
+        function getCurrentScenario() {
+            return {
+                weather: document.getElementById('weather').value,
+                visibility: parseFloat(document.getElementById('visibility').value),
+                crowd_density: document.getElementById('crowdDensity').value,
+                time_of_day: document.getElementById('timeOfDay').value,
+                location_type: document.getElementById('locationType').value,
+                temperature: parseInt(document.getElementById('temperature').value)
+            };
+        }
+        
+        function updateSimulation() {
+            const currentScenario = getCurrentScenario();
+            const modifications = {};
+            
+            // Calculate modifications from baseline
+            for (const [key, value] of Object.entries(currentScenario)) {
+                if (baselineScenario[key] !== value) {
+                    modifications[key] = value;
+                }
+            }
+            
+            // Run simulation
+            const result = simulator.runSimulation(modifications);
+            
+            if (result.success) {
+                updateRiskDisplay(result.risk_assessment);
+                updateComparison(result.baseline_comparison);
+                updateBreakdown(result.risk_assessment);
+                updateInsights(result.insights);
+            }
+        }
+        
+        function updateRiskDisplay(assessment) {
+            const riskDisplay = document.getElementById('riskDisplay');
+            const riskScore = document.getElementById('riskScore');
+            const riskLevel = document.getElementById('riskLevel');
+            
+            riskScore.textContent = assessment.risk_score.toFixed(1);
+            riskLevel.textContent = assessment.risk_level;
+            
+            // Update colors
+            riskDisplay.className = 'risk-display risk-' + assessment.risk_level.toLowerCase();
+        }
+        
+        function updateComparison(comparison) {
+            const comparisonDetails = document.getElementById('comparisonDetails');
+            
+            if (comparison.no_baseline) {
+                comparisonDetails.innerHTML = 'No baseline set';
+                return;
+            }
+            
+            const change = comparison.risk_score_change;
+            const changeClass = change > 0 ? 'change-negative' : change < 0 ? 'change-positive' : 'change-neutral';
+            const changeText = change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
+            
+            let html = `<span class="${changeClass}">Risk Score: ${changeText}</span><br>`;
+            
+            if (comparison.risk_level_change.escalated) {
+                html += `<span class="change-negative">⚠️ Risk escalated from ${comparison.risk_level_change.from} to ${comparison.risk_level_change.to}</span>`;
+            } else if (comparison.risk_level_change.from !== comparison.risk_level_change.to) {
+                html += `<span class="change-positive">✓ Risk improved from ${comparison.risk_level_change.from} to ${comparison.risk_level_change.to}</span>`;
+            }
+            
+            comparisonDetails.innerHTML = html;
+        }
+        
+        function updateBreakdown(assessment) {
+            const factorBars = document.getElementById('factorBars');
+            
+            if (!assessment.breakdown) {
+                factorBars.innerHTML = '<p>Breakdown not available</p>';
+                return;
+            }
+            
+            let html = '';
+            for (const [factor, data] of Object.entries(assessment.breakdown)) {
+                const percentage = data.percentage || 0;
+                html += `
+                    <div class="factor-bar">
+                        <div class="factor-name">${factor}</div>
+                        <div class="factor-progress">
+                            <div class="factor-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="factor-value">${percentage.toFixed(1)}%</div>
+                    </div>
+                `;
+            }
+            
+            factorBars.innerHTML = html;
+        }
+        
+        function updateInsights(insights) {
+            const insightsList = document.getElementById('insightsList');
+            
+            let html = '';
+            
+            if (insights.key_findings && insights.key_findings.length > 0) {
+                for (const finding of insights.key_findings) {
+                    html += `<div class="insight-item">${finding.message}</div>`;
+                }
+            }
+            
+            if (insights.risk_drivers && insights.risk_drivers.length > 0) {
+                html += `<div class="insight-item">Primary risk drivers: ${insights.risk_drivers.map(d => d.factor).join(', ')}</div>`;
+            }
+            
+            if (html === '') {
+                html = '<div class="insight-item">No significant insights detected</div>';
+            }
+            
+            insightsList.innerHTML = html;
+        }
+        
+        function loadTemplate(templateName) {
+            if (templateName === 'baseline') {
+                // Reset to baseline
+                document.getElementById('weather').value = baselineScenario.weather;
+                document.getElementById('visibility').value = baselineScenario.visibility;
+                document.getElementById('crowdDensity').value = baselineScenario.crowd_density;
+                document.getElementById('timeOfDay').value = baselineScenario.time_of_day;
+                document.getElementById('locationType').value = baselineScenario.location_type;
+                document.getElementById('temperature').value = baselineScenario.temperature;
+                
+                updateVisibilityValue();
+                updateTemperatureValue();
+                updateSimulation();
+                return;
+            }
+            
+            const result = simulator.runScenarioTemplate(templateName);
+            
+            if (result.success) {
+                const scenario = result.modified_scenario;
+                
+                // Update UI controls
+                if (scenario.weather) document.getElementById('weather').value = scenario.weather;
+                if (scenario.visibility !== undefined) document.getElementById('visibility').value = scenario.visibility;
+                if (scenario.crowd_density) document.getElementById('crowdDensity').value = scenario.crowd_density;
+                if (scenario.time_of_day) document.getElementById('timeOfDay').value = scenario.time_of_day;
+                if (scenario.location_type) document.getElementById('locationType').value = scenario.location_type;
+                if (scenario.temperature !== undefined) document.getElementById('temperature').value = scenario.temperature;
+                
+                updateVisibilityValue();
+                updateTemperatureValue();
+                
+                // Update display
+                updateRiskDisplay(result.risk_assessment);
+                updateComparison(result.baseline_comparison);
+                updateBreakdown(result.risk_assessment);
+                updateInsights(result.insights);
+            }
+        }
+        
+        // Initialize display
+        updateSimulation();
+    </script>
+</body>
+</html>

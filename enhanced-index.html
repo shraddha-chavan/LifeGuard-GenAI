@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeGuard AI - Advanced Risk Intelligence</title>
+    <link rel="stylesheet" href="enhanced-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    <div class="cyber-grid"></div>
+    
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span class="logo-text">LifeGuard<span class="ai-text">AI</span></span>
+            </div>
+            <div class="status-indicators">
+                <div class="indicator" id="gpsStatus">
+                    <i class="fas fa-satellite-dish"></i>
+                    <span>GPS</span>
+                </div>
+                <div class="indicator" id="weatherStatus">
+                    <i class="fas fa-cloud"></i>
+                    <span>Weather</span>
+                </div>
+                <div class="indicator" id="crowdStatus">
+                    <i class="fas fa-users"></i>
+                    <span>Crowd</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="dashboard-grid">
+            <!-- Risk Assessment Panel -->
+            <div class="panel risk-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Risk Assessment</h2>
+                    <div class="panel-controls">
+                        <button class="btn-icon" id="refreshData" title="Refresh Data">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn-icon" id="autoMode" title="Auto Mode">
+                            <i class="fas fa-robot"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="risk-display" id="riskDisplay">
+                    <div class="risk-circle">
+                        <div class="risk-value" id="riskValue">0.0</div>
+                        <div class="risk-label" id="riskLabel">ANALYZING</div>
+                    </div>
+                    <div class="risk-bars">
+                        <div class="risk-bar" data-factor="weather">
+                            <span class="bar-label">Weather</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="weatherBar"></div>
+                            </div>
+                            <span class="bar-value" id="weatherValue">0%</span>
+                        </div>
+                        <div class="risk-bar" data-factor="crowd">
+                            <span class="bar-label">Crowd</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="crowdBar"></div>
+                            </div>
+                            <span class="bar-value" id="crowdValue">0%</span>
+                        </div>
+                        <div class="risk-bar" data-factor="location">
+                            <span class="bar-label">Location</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="locationBar"></div>
+                            </div>
+                            <span class="bar-value" id="locationValue">0%</span>
+                        </div>
+                        <div class="risk-bar" data-factor="time">
+                            <span class="bar-label">Time</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="timeBar"></div>
+                            </div>
+                            <span class="bar-value" id="timeValue">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Environmental Data Panel -->
+            <div class="panel env-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-globe"></i> Environmental Data</h2>
+                    <div class="auto-indicator" id="autoIndicator">
+                        <i class="fas fa-wifi"></i>
+                        <span>LIVE DATA</span>
+                        <div class="update-pulse" id="updatePulse"></div>
+                    </div>
+                </div>
+                
+                <div class="env-grid">
+                    <div class="env-card weather-card">
+                        <div class="env-icon">
+                            <i class="fas fa-cloud-sun" id="weatherIcon"></i>
+                        </div>
+                        <div class="env-data">
+                            <div class="env-value" id="weatherCondition">Loading...</div>
+                            <div class="env-label">Weather</div>
+                            <div class="env-details">
+                                <span id="temperature">--°C</span>
+                                <span id="humidity">--%</span>
+                                <span id="windSpeed">-- km/h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="env-card location-card">
+                        <div class="env-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="env-data">
+                            <div class="env-value" id="locationName">Detecting...</div>
+                            <div class="env-label">Location</div>
+                            <div class="env-details">
+                                <span id="coordinates">--°, --°</span>
+                                <span id="accuracy">-- m</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="env-card crowd-card">
+                        <div class="env-icon">
+                            <i class="fas fa-users" id="crowdIcon"></i>
+                        </div>
+                        <div class="env-data">
+                            <div class="env-value" id="crowdLevel">Analyzing...</div>
+                            <div class="env-label">Crowd Density</div>
+                            <div class="env-details">
+                                <span id="crowdCount">-- people</span>
+                                <span id="crowdTrend">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="env-card time-card">
+                        <div class="env-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="env-data">
+                            <div class="env-value" id="currentTime">--:--</div>
+                            <div class="env-label">Current Time</div>
+                            <div class="env-details">
+                                <span id="timeZone">--</span>
+                                <span id="dayType">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Panel -->
+            <div class="panel recommendations-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-lightbulb"></i> AI Recommendations</h2>
+                    <div class="confidence-indicator">
+                        <span>Confidence: </span>
+                        <span id="confidenceLevel">85%</span>
+                    </div>
+                </div>
+                
+                <div class="recommendations-content">
+                    <div class="recommendation-priority" id="priorityRecommendation">
+                        <div class="priority-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="priority-text">
+                            Initializing AI analysis...
+                        </div>
+                    </div>
+                    
+                    <div class="recommendations-list" id="recommendationsList">
+                        <!-- Dynamic recommendations will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Panel -->
+            <div class="panel alerts-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-bell"></i> Active Alerts</h2>
+                    <div class="alert-count" id="alertCount">0</div>
+                </div>
+                
+                <div class="alerts-content" id="alertsContent">
+                    <div class="no-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <span>All systems normal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-bar">
+            <button class="action-btn emergency" id="emergencyBtn">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Emergency</span>
+            </button>
+            <button class="action-btn share" id="shareLocationBtn">
+                <i class="fas fa-share-alt"></i>
+                <span>Share Location</span>
+            </button>
+            <button class="action-btn contacts" id="contactsBtn">
+                <i class="fas fa-phone"></i>
+                <span>Emergency Contacts</span>
+            </button>
+            <button class="action-btn settings" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Initializing LifeGuard AI...</div>
+            <div class="loading-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="closeSettings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label>Weather API Key</label>
+                    <input type="text" id="weatherApiKey" placeholder="Enter OpenWeatherMap API key">
+                    <small>Get free API key from <a href="https://openweathermap.org/api" target="_blank">OpenWeatherMap</a></small>
+                </div>
+                <div class="setting-group">
+                    <label>Google Places API Key</label>
+                    <input type="text" id="placesApiKey" placeholder="Enter Google Places API key">
+                    <small>For crowd density estimation</small>
+                </div>
+                <div class="setting-group">
+                    <label>Auto-refresh Interval</label>
+                    <select id="refreshInterval">
+                        <option value="1" selected>1 second (Real-time)</option>
+                        <option value="5">5 seconds</option>
+                        <option value="10">10 seconds</option>
+                        <option value="30">30 seconds</option>
+                        <option value="60">1 minute</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Weather Update Frequency</label>
+                    <select id="weatherUpdateFreq">
+                        <option value="10">10 seconds</option>
+                        <option value="30" selected>30 seconds</option>
+                        <option value="60">1 minute</option>
+                        <option value="300">5 minutes</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Crowd Update Frequency</label>
+                    <select id="crowdUpdateFreq">
+                        <option value="2">2 seconds</option>
+                        <option value="5" selected>5 seconds</option>
+                        <option value="10">10 seconds</option>
+                        <option value="30">30 seconds</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>High Accuracy GPS</label>
+                    <input type="checkbox" id="highAccuracyGPS" checked>
+                    <small>Uses more battery but provides better location accuracy</small>
+                </div>
+                <div class="setting-group">
+                    <label>Risk Sensitivity</label>
+                    <input type="range" id="riskSensitivity" min="0.5" max="2.0" step="0.1" value="1.0">
+                    <span id="sensitivityValue">1.0x</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="resetSettings">Reset</button>
+                <button class="btn-primary" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="simpleRiskAssessment.js"></script>
+    <script src="enhanced-app.js"></script>
+</body>
+</html>

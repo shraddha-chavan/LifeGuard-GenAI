@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Guidance Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stress-meter {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .stress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #ffc107, #fd7e14, #dc3545);
+            transition: width 0.3s ease;
+            border-radius: 15px;
+        }
+        
+        .stress-level {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .verbosity-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .verbosity-minimal { background: #dc3545; color: white; }
+        .verbosity-concise { background: #fd7e14; color: white; }
+        .verbosity-standard { background: #ffc107; color: black; }
+        .verbosity-detailed { background: #28a745; color: white; }
+        
+        .interaction-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .interaction-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .stress-btn { background: #dc3545; color: white; }
+        .stress-btn:hover { background: #c82333; }
+        
+        .calm-btn { background: #28a745; color: white; }
+        .calm-btn:hover { background: #218838; }
+        
+        .guidance-display {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .guidance-message {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: white;
+        }
+        
+        .guidance-steps {
+            margin: 15px 0;
+        }
+        
+        .guidance-step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .guidance-explanations {
+            margin: 15px 0;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .guidance-alternatives {
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        
+        .guidance-meta {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 0.8em;
+            color: #495057;
+        }
+        
+        .scenario-selector {
+            margin: 20px 0;
+        }
+        
+        .scenario-btn {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .scenario-btn:hover {
+            background: #0056b3;
+        }
+        
+        .indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .indicator {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .indicator-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .indicator-label {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Adaptive Guidance System Demo</h1>
+    <p>This demo shows how guidance verbosity adapts based on inferred user stress levels.</p>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Stress Level Monitor</h2>
+            
+            <div class="stress-meter">
+                <div class="stress-level" id="stressLevel">Normal (0.30)</div>
+                <div class="stress-bar">
+                    <div class="stress-fill" id="stressFill" style="width: 30%"></div>
+                </div>
+            </div>
+            
+            <div class="verbosity-indicator verbosity-standard" id="verbosityIndicator">
+                Standard Verbosity
+            </div>
+            
+            <div class="indicators">
+                <div class="indicator">
+                    <div class="indicator-value" id="interactionCount">0</div>
+                    <div class="indicator-label">Interactions</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-value" id="errorCount">0</div>
+                    <div class="indicator-label">Errors</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-value" id="helpCount">0</div>
+                    <div class="indicator-label">Help Requests</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-value" id="navCount">0</div>
+                    <div class="indicator-label">Navigation</div>
+                </div>
+            </div>
+            
+            <h3>Simulate User Interactions</h3>
+            <div class="interaction-buttons">
+                <button class="interaction-btn stress-btn" onclick="simulateRapidClicks()">Rapid Clicks</button>
+                <button class="interaction-btn stress-btn" onclick="simulateError()">Error Occurred</button>
+                <button class="interaction-btn stress-btn" onclick="simulateHelpRequest()">Request Help</button>
+                <button class="interaction-btn stress-btn" onclick="simulateSlowResponse()">Slow Response</button>
+                <button class="interaction-btn calm-btn" onclick="simulateNormalUse()">Normal Use</button>
+                <button class="interaction-btn calm-btn" onclick="resetStress()">Reset Stress</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Adaptive Guidance Output</h2>
+            
+            <div class="scenario-selector">
+                <h3>Test Scenarios:</h3>
+                <button class="scenario-btn" onclick="generateGuidance('emergency')">Emergency Evacuation</button>
+                <button class="scenario-btn" onclick="generateGuidance('weather')">Weather Warning</button>
+                <button class="scenario-btn" onclick="generateGuidance('crowd')">Crowd Safety</button>
+                <button class="scenario-btn" onclick="generateGuidance('general')">General Safety</button>
+            </div>
+            
+            <div class="guidance-display" id="guidanceDisplay">
+                <div class="guidance-message">Select a scenario above to see adaptive guidance</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="adaptiveGuidanceEngine.js"></script>
+    <script>
+        // Initialize the adaptive guidance engine
+        const guidanceEngine = new AdaptiveGuidanceEngine({
+            stressDecayRate: 0.98, // Slower decay for demo
+            enableLogging: true
+        });
+        
+        // Predefined guidance scenarios
+        const guidanceScenarios = {
+            emergency: {
+                emergency_action: 'EVACUATE NOW',
+                key_action: 'Exit building',
+                brief_summary: 'Leave the area immediately via nearest exit',
+                full_message: 'An emergency evacuation is required. Please follow these steps to safely exit the building.',
+                steps: [
+                    'Stop what you are doing immediately',
+                    'Move to the nearest exit',
+                    'Do not use elevators',
+                    'Follow evacuation route signs',
+                    'Proceed to designated assembly point',
+                    'Wait for further instructions from authorities',
+                    'Do not re-enter the building until cleared'
+                ],
+                explanations: [
+                    'Immediate evacuation reduces exposure to potential hazards',
+                    'Using stairs instead of elevators prevents entrapment',
+                    'Assembly points allow for accurate headcounts'
+                ],
+                alternatives: [
+                    'If primary exit is blocked, use secondary exit',
+                    'If mobility impaired, proceed to refuge area',
+                    'If separated from group, exit independently and report to assembly point'
+                ]
+            },
+            weather: {
+                emergency_action: 'SEEK SHELTER',
+                key_action: 'Go indoors',
+                brief_summary: 'Severe weather approaching - move to safe indoor location',
+                full_message: 'Severe weather conditions are developing in your area. Take these precautions to stay safe.',
+                steps: [
+                    'Move indoors to a sturdy building',
+                    'Stay away from windows',
+                    'Monitor weather alerts',
+                    'Avoid using electrical appliances',
+                    'Keep emergency supplies nearby',
+                    'Stay indoors until conditions improve'
+                ],
+                explanations: [
+                    'Indoor shelter protects from wind, rain, and debris',
+                    'Windows can break during severe weather',
+                    'Weather alerts provide important safety updates'
+                ],
+                alternatives: [
+                    'If no building available, seek low ground away from trees',
+                    'In vehicle, pull over safely and wait',
+                    'If caught outside, avoid metal objects and high ground'
+                ]
+            },
+            crowd: {
+                emergency_action: 'MOVE AWAY',
+                key_action: 'Find space',
+                brief_summary: 'Crowd density high - move to less crowded area',
+                full_message: 'You are in a crowded area with potential safety risks. Follow these guidelines to stay safe.',
+                steps: [
+                    'Stay calm and aware of surroundings',
+                    'Move with the crowd, not against it',
+                    'Keep your hands up to protect chest',
+                    'Look for less crowded areas',
+                    'Identify multiple exit routes',
+                    'Stay with your group if possible'
+                ],
+                explanations: [
+                    'Moving with crowd flow reduces risk of falling',
+                    'Protecting chest area helps maintain breathing space',
+                    'Multiple exit options provide alternatives if one becomes blocked'
+                ],
+                alternatives: [
+                    'If crowd stops moving, stay upright and alert',
+                    'If you fall, try to get up quickly',
+                    'If unable to move, protect head and chest'
+                ]
+            },
+            general: {
+                emergency_action: 'STAY ALERT',
+                key_action: 'Be aware',
+                brief_summary: 'Maintain situational awareness and follow safety protocols',
+                full_message: 'General safety guidelines to help you stay safe in various situations.',
+                steps: [
+                    'Stay aware of your environment',
+                    'Trust your instincts about unsafe situations',
+                    'Keep communication devices charged',
+                    'Know your location and nearest exits',
+                    'Follow posted safety guidelines',
+                    'Report suspicious or dangerous activities'
+                ],
+                explanations: [
+                    'Environmental awareness helps identify potential risks early',
+                    'Intuition often detects danger before conscious recognition',
+                    'Communication devices enable calls for help when needed'
+                ],
+                alternatives: [
+                    'If feeling unsafe, move to a more secure location',
+                    'If lost, ask for directions from official personnel',
+                    'If emergency occurs, follow established procedures'
+                ]
+            }
+        };
+        
+        // Update display functions
+        function updateStressDisplay() {
+            const stressData = guidanceEngine.getStressLevel();
+            const stressPercent = (stressData.current * 100).toFixed(0);
+            
+            document.getElementById('stressLevel').textContent = 
+                `${stressData.verbosity} (${stressData.current.toFixed(2)})`;
+            document.getElementById('stressFill').style.width = stressPercent + '%';
+            
+            // Update verbosity indicator
+            const verbosityElement = document.getElementById('verbosityIndicator');
+            verbosityElement.textContent = `${stressData.verbosity} Verbosity`;
+            verbosityElement.className = `verbosity-indicator verbosity-${stressData.verbosity.toLowerCase()}`;
+            
+            // Update indicators
+            const indicators = stressData.recent_indicators;
+            document.getElementById('interactionCount').textContent = indicators.interactions;
+            document.getElementById('errorCount').textContent = indicators.errors;
+            document.getElementById('helpCount').textContent = indicators.help_requests;
+            document.getElementById('navCount').textContent = indicators.navigation_changes;
+        }
+        
+        function displayGuidance(guidanceResult) {
+            const display = document.getElementById('guidanceDisplay');
+            
+            if (!guidanceResult.success) {
+                display.innerHTML = `<div class="guidance-message">Error: ${guidanceResult.error}</div>`;
+                return;
+            }
+            
+            const guidance = guidanceResult.guidance;
+            let html = '';
+            
+            // Primary message
+            html += `<div class="guidance-message">${guidance.primary_message}</div>`;
+            
+            // Steps
+            if (guidance.steps && guidance.steps.length > 0) {
+                html += '<div class="guidance-steps"><strong>Steps:</strong>';
+                guidance.steps.forEach((step, index) => {
+                    html += `<div class="guidance-step">${index + 1}. ${step}</div>`;
+                });
+                html += '</div>';
+            }
+            
+            // Explanations
+            if (guidance.explanations && guidance.explanations.length > 0) {
+                html += '<div class="guidance-explanations"><strong>Why:</strong><ul>';
+                guidance.explanations.forEach(explanation => {
+                    html += `<li>${explanation}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            // Alternatives
+            if (guidance.alternatives && guidance.alternatives.length > 0) {
+                html += '<div class="guidance-alternatives"><strong>Alternatives:</strong><ul>';
+                guidance.alternatives.forEach(alternative => {
+                    html += `<li>${alternative}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            // Meta information
+            html += `<div class="guidance-meta">
+                <strong>Adaptation:</strong> ${guidanceResult.adaptation_reason}<br>
+                <strong>Verbosity:</strong> ${guidanceResult.verbosity_level.name}<br>
+                <strong>Stress Level:</strong> ${guidanceResult.stress_level.toFixed(2)}<br>
+                <strong>Tone:</strong> ${guidance.tone}
+            </div>`;
+            
+            display.innerHTML = html;
+        }
+        
+        // Interaction simulation functions
+        function simulateRapidClicks() {
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    guidanceEngine.recordInteraction({ type: 'click' });
+                    updateStressDisplay();
+                }, i * 200);
+            }
+        }
+        
+        function simulateError() {
+            guidanceEngine.recordInteraction({ 
+                type: 'error', 
+                errorType: 'user_input',
+                severity: 'medium'
+            });
+            updateStressDisplay();
+        }
+        
+        function simulateHelpRequest() {
+            guidanceEngine.recordInteraction({ 
+                type: 'help_request', 
+                helpType: 'guidance',
+                urgency: 'high'
+            });
+            updateStressDisplay();
+        }
+        
+        function simulateSlowResponse() {
+            guidanceEngine.recordInteraction({ 
+                type: 'response', 
+                responseTime: 15000,
+                taskType: 'safety_action'
+            });
+            updateStressDisplay();
+        }
+        
+        function simulateNormalUse() {
+            guidanceEngine.recordInteraction({ 
+                type: 'click'
+            });
+            setTimeout(() => {
+                guidanceEngine.recordInteraction({ 
+                    type: 'response', 
+                    responseTime: 2000,
+                    taskType: 'normal_interaction'
+                });
+                updateStressDisplay();
+            }, 2000);
+        }
+        
+        function resetStress() {
+            guidanceEngine.reset();
+            updateStressDisplay();
+        }
+        
+        function generateGuidance(scenarioType) {
+            const scenario = guidanceScenarios[scenarioType];
+            const context = {
+                urgency: scenarioType === 'emergency' ? 'high' : 'normal',
+                scenario_type: scenarioType
+            };
+            
+            const result = guidanceEngine.generateAdaptiveGuidance(context, scenario);
+            displayGuidance(result);
+        }
+        
+        // Auto-update stress display
+        setInterval(updateStressDisplay, 1000);
+        
+        // Initialize display
+        updateStressDisplay();
+        generateGuidance('general');
+    </script>
+</body>
+</html>

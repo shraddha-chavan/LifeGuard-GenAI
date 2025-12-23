@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeGuard Risk Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LifeGuard Risk Monitor</h1>
+            <p>Real-time safety intelligence system</p>
+        </header>
+        
+        <main>
+            <section class="data-input">
+                <h2>Environmental Data</h2>
+                <form id="environmentForm">
+                    <div class="input-group">
+                        <label for="location">Location:</label>
+                        <input type="text" id="location" placeholder="Enter location or use GPS">
+                        <button type="button" id="getLocation">Get GPS</button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="weather">Weather Conditions:</label>
+                        <select id="weather">
+                            <option value="">Select weather</option>
+                            <option value="clear">Clear</option>
+                            <option value="cloudy">Cloudy</option>
+                            <option value="rainy">Rainy</option>
+                            <option value="stormy">Stormy</option>
+                            <option value="foggy">Foggy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="crowdLevel">Crowd Level:</label>
+                        <select id="crowdLevel">
+                            <option value="">Select crowd level</option>
+                            <option value="isolated">Isolated</option>
+                            <option value="light">Light</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="heavy">Heavy</option>
+                            <option value="overcrowded">Overcrowded</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">Analyze Risk</button>
+                </form>
+            </section>
+            
+            <section class="results" id="results" style="display: none;">
+                <h2>Risk Analysis</h2>
+                <div id="contextOutput"></div>
+                <div id="riskAssessment"></div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
