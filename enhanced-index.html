@@ -186,17 +186,100 @@
                 </div>
             </div>
 
-            <!-- Alerts Panel -->
-            <div class="panel alerts-panel">
+            <!-- AI Chat Panel -->
+            <div class="panel ai-chat-panel">
                 <div class="panel-header">
-                    <h2><i class="fas fa-bell"></i> Active Alerts</h2>
-                    <div class="alert-count" id="alertCount">0</div>
+                    <h2><i class="fas fa-robot"></i> AI Assistant</h2>
+                    <div class="panel-controls">
+                        <button class="btn-icon" id="voiceToggle" title="Voice Chat">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="btn-icon" id="cameraToggle" title="Visual Analysis">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="alerts-content" id="alertsContent">
-                    <div class="no-alerts">
-                        <i class="fas fa-check-circle"></i>
-                        <span>All systems normal</span>
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="ai-message">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <div class="message-text">Hello! I'm your AI safety assistant. I can analyze your environment, predict risks, and provide personalized guidance. How can I help keep you safe today?</div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" placeholder="Ask me about safety, weather, crowds, or anything..." />
+                        <button id="sendMessage" class="btn-send">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="quick-action" data-message="What's my current risk level?">
+                            📊 Risk Status
+                        </button>
+                        <button class="quick-action" data-message="Any safety recommendations?">
+                            💡 Get Advice
+                        </button>
+                        <button class="quick-action" data-message="Predict future risks">
+                            🔮 Predict Risks
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictive Analysis Panel -->
+            <div class="panel prediction-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-crystal-ball"></i> AI Predictions</h2>
+                    <div class="prediction-status" id="predictionStatus">
+                        <i class="fas fa-brain"></i>
+                        <span>Analyzing...</span>
+                    </div>
+                </div>
+                
+                <div class="prediction-content">
+                    <div class="prediction-timeline" id="predictionTimeline">
+                        <!-- Dynamic prediction timeline will be inserted here -->
+                    </div>
+                    
+                    <div class="scenario-analysis" id="scenarioAnalysis">
+                        <h3>🎭 Scenario Analysis</h3>
+                        <div class="scenario-cards">
+                            <div class="scenario-card best-case">
+                                <div class="scenario-header">
+                                    <span class="scenario-icon">✅</span>
+                                    <span class="scenario-title">Best Case</span>
+                                </div>
+                                <div class="scenario-content" id="bestCaseScenario">
+                                    Analyzing optimal outcomes...
+                                </div>
+                            </div>
+                            
+                            <div class="scenario-card most-likely">
+                                <div class="scenario-header">
+                                    <span class="scenario-icon">🎯</span>
+                                    <span class="scenario-title">Most Likely</span>
+                                </div>
+                                <div class="scenario-content" id="mostLikelyScenario">
+                                    Calculating probable outcomes...
+                                </div>
+                            </div>
+                            
+                            <div class="scenario-card worst-case">
+                                <div class="scenario-header">
+                                    <span class="scenario-icon">⚠️</span>
+                                    <span class="scenario-title">Worst Case</span>
+                                </div>
+                                <div class="scenario-content" id="worstCaseScenario">
+                                    Evaluating risk scenarios...
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -301,6 +384,10 @@
     </div>
 
     <script src="simpleRiskAssessment.js"></script>
+    <script src="genAI-engine.js"></script>
+    <script src="ai-chat-interface.js"></script>
+    <script src="predictive-ai-model.js"></script>
+    <script src="ai-vision-system.js"></script>
     <script src="enhanced-app.js"></script>
 </body>
 </html>

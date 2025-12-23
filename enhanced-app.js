@@ -29,6 +29,12 @@ class LifeGuardAI {
         this.dataUpdateQueue = [];
         this.isUpdating = false;
 
+        // GenAI Components
+        this.genAI = new LifeGuardGenAI();
+        this.chatAI = new LifeGuardChatAI();
+        this.predictiveAI = new PredictiveAIModel();
+        this.visionAI = new AIVisionSystem();
+
         this.initialize();
     }
 
@@ -105,6 +111,12 @@ class LifeGuardAI {
         document.getElementById('shareLocationBtn').addEventListener('click', () => {
             this.shareLocation();
         });
+
+        // AI Chat functionality
+        this.setupAIChatInterface();
+
+        // Vision AI controls
+        this.setupVisionControls();
 
         // Update time display
         setInterval(() => this.updateTimeDisplay(), 1000);
@@ -802,6 +814,11 @@ class LifeGuardAI {
             this.performRiskAssessment();
             this.updateAllDisplays();
             
+            // Perform AI prediction every 30 seconds
+            if (Date.now() % 30000 < 1000) {
+                await this.performAIPrediction();
+            }
+            
             // Process any queued updates
             this.processUpdateQueue();
             
@@ -1056,6 +1073,305 @@ class LifeGuardAI {
         const area = Math.PI * Math.pow(radius, 2); // Area in square meters
         const density = crowdScore / 100; // Normalize to 0-1
         return Math.floor(area * density / 10);
+    }
+
+    // AI Integration Methods
+    setupAIChatInterface() {
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendMessage');
+        const voiceToggle = document.getElementById('voiceToggle');
+
+        // Send message on button click
+        sendButton.addEventListener('click', () => {
+            this.sendChatMessage();
+        });
+
+        // Send message on Enter key
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendChatMessage();
+            }
+        });
+
+        // Voice toggle
+        voiceToggle.addEventListener('click', () => {
+            this.toggleVoiceChat();
+        });
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const message = e.target.getAttribute('data-message');
+                this.sendChatMessage(message);
+            });
+        });
+
+        // Listen for chat events from AI
+        window.addEventListener('chatMessage', (event) => {
+            this.displayChatMessage(event.detail);
+        });
+    }
+
+    async sendChatMessage(message = null) {
+        const chatInput = document.getElementById('chatInput');
+        const messageText = message || chatInput.value.trim();
+        
+        if (!messageText) return;
+
+        // Clear input
+        if (!message) chatInput.value = '';
+
+        // Display user message
+        this.displayChatMessage({
+            sender: 'user',
+            message: messageText,
+            timestamp: new Date().toISOString()
+        });
+
+        // Show AI thinking indicator
+        this.showAIThinking();
+
+        try {
+            // Get current context for AI
+            const context = {
+                currentLocation: this.currentLocation,
+                weatherData: this.weatherData,
+                crowdData: this.crowdData,
+                riskAssessment: this.riskAssessment
+            };
+
+            // Process message with AI
+            const response = await this.chatAI.processMessage(messageText, context);
+
+            // Hide thinking indicator
+            this.hideAIThinking();
+
+            // Display AI response
+            this.displayChatMessage({
+                sender: 'assistant',
+                message: response.response.text,
+                timestamp: new Date().toISOString()
+            });
+
+            // Handle any actions requested by AI
+            if (response.response.actions) {
+                this.handleAIActions(response.response.actions);
+            }
+
+        } catch (error) {
+            console.error('Chat AI Error:', error);
+            this.hideAIThinking();
+            this.displayChatMessage({
+                sender: 'assistant',
+                message: 'I apologize, but I encountered an error. Please try again or contact support if the issue persists.',
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+
+    displayChatMessage(messageData) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = messageData.sender === 'user' ? 'user-message' : 'ai-message';
+
+        const avatar = messageData.sender === 'user' ? '👤' : '🤖';
+        const time = new Date(messageData.timestamp).toLocaleTimeString();
+
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${avatar}</div>
+            <div class="message-content">
+                <div class="message-text">${messageData.message}</div>
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Add fade-in animation
+        messageDiv.classList.add('fade-in');
+    }
+
+    showAIThinking() {
+        const chatMessages = document.getElementById('chatMessages');
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.className = 'ai-message ai-thinking-message';
+        thinkingDiv.id = 'aiThinking';
+
+        thinkingDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                <div class="message-text ai-thinking">
+                    Analyzing your request...
+                </div>
+            </div>
+        `;
+
+        chatMessages.appendChild(thinkingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    hideAIThinking() {
+        const thinkingDiv = document.getElementById('aiThinking');
+        if (thinkingDiv) {
+            thinkingDiv.remove();
+        }
+    }
+
+    toggleVoiceChat() {
+        const voiceToggle = document.getElementById('voiceToggle');
+        
+        if (this.chatAI.isListening) {
+            this.chatAI.stopListening();
+            voiceToggle.classList.remove('recording');
+            voiceToggle.title = 'Start Voice Chat';
+        } else {
+            this.chatAI.startListening();
+            voiceToggle.classList.add('recording');
+            voiceToggle.title = 'Stop Voice Chat';
+        }
+    }
+
+    handleAIActions(actions) {
+        actions.forEach(action => {
+            switch (action) {
+                case 'show_risk_assessment':
+                    this.updateRiskDisplay();
+                    break;
+                case 'update_weather':
+                    this.getWeatherData();
+                    break;
+                case 'analyze_crowd':
+                    this.getCrowdData();
+                    break;
+                case 'contact_emergency':
+                    this.handleEmergency();
+                    break;
+                case 'share_location':
+                    this.shareLocation();
+                    break;
+            }
+        });
+    }
+
+    setupVisionControls() {
+        const cameraToggle = document.getElementById('cameraToggle');
+        
+        cameraToggle.addEventListener('click', () => {
+            this.toggleVisionAnalysis();
+        });
+
+        // Listen for vision analysis events
+        window.addEventListener('visionAnalysis', (event) => {
+            this.handleVisionAnalysis(event.detail);
+        });
+    }
+
+    async toggleVisionAnalysis() {
+        const cameraToggle = document.getElementById('cameraToggle');
+        
+        if (this.visionAI.isAvailable()) {
+            if (this.visionAI.analysisTimer) {
+                this.visionAI.stopAnalysis();
+                cameraToggle.classList.remove('active');
+                cameraToggle.title = 'Start Visual Analysis';
+            } else {
+                this.visionAI.startAnalysis();
+                cameraToggle.classList.add('active');
+                cameraToggle.title = 'Stop Visual Analysis';
+            }
+        } else {
+            // Try to initialize vision system
+            await this.visionAI.initialize();
+            if (this.visionAI.isAvailable()) {
+                this.visionAI.startAnalysis();
+                cameraToggle.classList.add('active');
+                cameraToggle.title = 'Stop Visual Analysis';
+            } else {
+                alert('Camera not available or permission denied');
+            }
+        }
+    }
+
+    handleVisionAnalysis(analysis) {
+        // Integrate vision analysis results with risk assessment
+        if (analysis.hazards_identified.length > 0) {
+            this.displayChatMessage({
+                sender: 'assistant',
+                message: `🔍 Visual analysis detected ${analysis.hazards_identified.length} potential hazards. ${analysis.recommendations.join(' ')}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Update crowd data with visual analysis
+        if (analysis.crowd_analysis.people_count > 0) {
+            this.crowdData = {
+                ...this.crowdData,
+                visual_count: analysis.crowd_analysis.people_count,
+                visual_density: analysis.crowd_analysis.density_level,
+                last_visual_update: analysis.timestamp
+            };
+        }
+    }
+
+    async performAIPrediction() {
+        try {
+            const environmentData = {
+                weather: this.weatherData?.condition,
+                crowd_density: this.crowdData?.level,
+                location: 'current',
+                time: this.getTimeOfDay(),
+                temperature: this.weatherData?.temperature,
+                visibility: this.weatherData?.visibility
+            };
+
+            const predictions = await this.predictiveAI.predictFutureRisks(environmentData);
+            this.updatePredictionDisplay(predictions);
+
+        } catch (error) {
+            console.error('Prediction AI Error:', error);
+        }
+    }
+
+    updatePredictionDisplay(predictions) {
+        if (!predictions.success) return;
+
+        // Update prediction timeline
+        const timeline = document.getElementById('predictionTimeline');
+        timeline.innerHTML = '<h3>🔮 Risk Predictions</h3>';
+
+        predictions.predictions.forEach(prediction => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item';
+            
+            timelineItem.innerHTML = `
+                <div class="timeline-time">${prediction.time_horizon}min</div>
+                <div class="timeline-risk ${prediction.predicted_risk_level.toLowerCase()}">${prediction.predicted_risk_level}</div>
+                <div class="timeline-description">${prediction.scenario_details?.scenarios?.[0]?.description || 'Risk analysis in progress'}</div>
+            `;
+            
+            timeline.appendChild(timelineItem);
+        });
+
+        // Update scenario analysis
+        if (predictions.scenario_tree?.scenarios) {
+            const scenarios = predictions.scenario_tree.scenarios;
+            
+            document.getElementById('bestCaseScenario').textContent = 
+                scenarios.find(s => s.name === 'Best Case')?.description || 'Analyzing...';
+            
+            document.getElementById('mostLikelyScenario').textContent = 
+                scenarios.find(s => s.name === 'Most Likely')?.description || 'Calculating...';
+            
+            document.getElementById('worstCaseScenario').textContent = 
+                scenarios.find(s => s.name === 'Worst Case')?.description || 'Evaluating...';
+        }
+
+        // Update prediction status
+        document.getElementById('predictionStatus').innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span>Updated ${new Date().toLocaleTimeString()}</span>
+        `;
     }
 
     // Settings Management
