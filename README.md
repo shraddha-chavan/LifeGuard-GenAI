@@ -397,3 +397,19 @@ copies or substantial portions of the Software.
 [⬆️ Back to Top](#️-lifeguard-ai---advanced-real-time-safety-intelligence-system)
 
 </div>
+
+---
+
+## 🎯 **Quick Links**
+
+| 🔗 Link | 📝 Description |
+|---------|----------------|
+| [🏠 Main Dashboard](enhanced-index.html) | Primary application interface |
+| [🎲 What-If Simulator](whatIfDemo.html) | Interactive scenario testing |
+| [🎭 Adaptive Guidance](adaptiveGuidanceDemo.html) | Stress-aware recommendations |
+| [📊 Risk Analysis](enhanced-index.html#risk-breakdown) | Detailed factor analysis |
+| [⚙️ Configuration](enhanced-index.html#settings) | System settings panel |
+
+---
+
+*🌟 Last updated: December 2024 | Version: 1.0.0 | Status: 🟢 Active Development*
